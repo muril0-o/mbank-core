@@ -34,7 +34,7 @@ public class AccountService : IAccount
     }
     public async Task CreateAccount(User user)
     {
-        var accountNumber = GenerateAccountNumber();
+        var accountNumber = GenerateUniqueAccountNumber();
 
         var account = new Account
         {
