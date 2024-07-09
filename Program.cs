@@ -15,6 +15,7 @@ var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
 builder.Services.AddDbContext<Context>(options => options.UseMySql(connectionString, serverVersion));
 
 builder.Services.AddTransient<UserService>();
+builder.Services.AddTransient<AccountService>();
 
 var app = builder.Build();
 
