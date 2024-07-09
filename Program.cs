@@ -1,9 +1,20 @@
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 36)); 
+
+builder.Services.AddDbContext<Context>(options => options.UseMySql(connectionString, serverVersion));
+
+builder.Services.AddTransient<UserService>();
 
 var app = builder.Build();
 
