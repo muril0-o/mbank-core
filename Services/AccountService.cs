@@ -1,6 +1,7 @@
 using Infrastructure.Data;
 using Model.Base;
 using Model.Enum;
+using MySqlConnector;
 using Services.Interfaces;
 
 namespace Services;
@@ -49,5 +50,40 @@ public class AccountService : IAccount
 
         user.FkAccountId = account.Id;
         await _context.SaveChangesAsync();
+    }
+
+    public void TransferFunds(decimal transferValue, string fromAccountNumber, string toAccountNumber)
+    {  
+        using (var transaction =  _context.Database.BeginTransaction())
+        {
+            try
+            {
+                var fromAccount = _context.Account.FirstOrDefault(x => x.TxtNumber == fromAccountNumber);
+                
+                var toAccount = _context.Account.FirstOrDefault(x => x.TxtNumber == toAccountNumber);
+                
+                if(fromAccount is null || toAccount is null) 
+                {
+                    throw new Exception($"One or both the accounts do not exist.");
+                }
+
+                if(fromAccount.DecBalance < transferValue)
+                { 
+                    throw new Exception("Source account do not have enough funds");
+                }
+                
+                fromAccount.DecBalance -= transferValue;
+                toAccount.DecBalance += transferValue;
+
+                _context.SaveChanges();
+                transaction.Commit();
+            }
+
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                throw new Exception ($"Tranfer failed: {ex.Message}");
+            }
+        }
     }
 }
